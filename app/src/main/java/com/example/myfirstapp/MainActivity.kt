@@ -53,22 +53,22 @@ class MainActivity : AppCompatActivity() {
         var macAddr :String? = null
 
         try {
+
             val all = NetworkInterface.getNetworkInterfaces()
             for (nif in all)
             {
                 if (!nif.name.equals("wlan0", ignoreCase = true)) continue
 
-                val macBytes = nif.hardwareAddress ?: return ""
+                val macBytes = nif.hardwareAddress
+                if (macBytes == null)
+                {
+                    return ""
+                }
 
                 val res1 = StringBuilder()
                 for (b in macBytes)
                 {
-                    val b_int_val = b.toInt()
-                    val after_and_value = b_int_val and 0xFF
-                    var hex = Integer.toHexString(after_and_value)
-                    if (hex.length == 1)
-                        hex = "0$hex"
-                    res1.append("$hex:")
+                    res1.append(String.format("%02X:", b))
                 }
 
                 if (res1.length > 0)
@@ -77,8 +77,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 macAddr = res1.toString()
-
             }
+
+
         } catch (ex: Exception) {
         }
 
