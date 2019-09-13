@@ -38,11 +38,11 @@ class MainActivity : AppCompatActivity() {
 
     fun onMacButtonClick(view: View)
     {
-/*        val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val info = manager.connectionInfo
-        val address = info.macAddress*/
+        val address = info.bssid
 
-        val address = getMacAddr()
+        // val address = getMacAddr()
 
         val myToast = Toast.makeText(this, address, Toast.LENGTH_SHORT)
         myToast.show()
