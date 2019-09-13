@@ -1,6 +1,7 @@
 package com.example.myfirstapp
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
@@ -10,84 +11,61 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.*
 import android.net.wifi.WifiManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.kotlinpermissions.KotlinPermissions
 import java.net.NetworkInterface
+import java.util.jar.Manifest
 import kotlin.experimental.and
 import kotlin.reflect.typeOf
 
 
 class MainActivity : AppCompatActivity() {
 
+    val DEFAULT_MAC_WHEN_LACKING_PERMISSIONS = "02:00:00:00:00:00"
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
 
-    var global_string : String = ""
+        // Location permissions are requested if needed to fetch the MAC (why? unclear)
+        // Once granted they won't be requested again
+        // (unless manually removed through the device's settings)
+        askForLocationPermissionIfNeeded()
+    }
 
     fun onAsyncButtonClick(view: View)
     {
-        val myToast = Toast.makeText(this, "Hello Toast", Toast.LENGTH_SHORT)
-        myToast.show()
     }
 
-    fun onUiButtonClick(view: View)
-    {
 
+    fun onHelloButtonClick(view :View)
+    {
+        showToast("Hello Toast")
     }
 
     fun onMacButtonClick(view: View)
     {
-        val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val info = manager.connectionInfo
-        val address = info.bssid
+        val macAddress = getConnectedWifiMac()
 
-        // val address = getMacAddr()
+        if (macAddress.isNullOrEmpty())
+        {
+            showToast("Please connect to Wi-Fi")
 
-        val myToast = Toast.makeText(this, address, Toast.LENGTH_SHORT)
-        myToast.show()
-    }
-
-    fun getMacAddr(): String?
-    {
-        var macAddr :String? = null
-
-        try {
-
-            val all = NetworkInterface.getNetworkInterfaces()
-            for (nif in all)
-            {
-                if (!nif.name.equals("wlan0", ignoreCase = true)) continue
-
-                val macBytes = nif.hardwareAddress
-                if (macBytes == null)
-                {
-                    return ""
-                }
-
-                val res1 = StringBuilder()
-                for (b in macBytes)
-                {
-                    res1.append(String.format("%02X:", b))
-                }
-
-                if (res1.length > 0)
-                {
-                    res1.deleteCharAt(res1.length - 1)
-                }
-
-                macAddr = res1.toString()
-            }
-
-
-        } catch (ex: Exception) {
+        }
+        else if (macAddress == DEFAULT_MAC_WHEN_LACKING_PERMISSIONS)
+        {
+            showToast("Please enable the location permission of the app through the device's settings")
         }
 
-        return macAddr
+        else
+        {
+            showToast(macAddress)
+        }
     }
 
-
-    suspend fun asyncFunc() = GlobalScope.launch(Dispatchers.Main)
+    private suspend fun asyncFunc() = GlobalScope.launch(Dispatchers.Main)
     {
         var stam: String = ""
         val statusMap = withContext(Dispatchers.Default) { BackendClient.fetchGroupStatuses(5, 5) }
@@ -95,6 +73,30 @@ class MainActivity : AppCompatActivity() {
             stam = key
         }
 
-        global_string = stam
+        // global_string = stam
+    }
+
+    private fun askForLocationPermissionIfNeeded()
+    {
+        // Available thanks to adding a dependency to build.gradle(Mobile: app):
+        // implementation 'ru.superjob:kotlin-permissions:1.0.3'
+        // https://github.com/superjobru/kotlin-permissions
+        KotlinPermissions.with(this)
+            .permissions(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            .ask()
+    }
+
+    // Returns an empty string if the device is not connected to a Wi-Fi network!
+    private fun getConnectedWifiMac() : String?
+    {
+        val manager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val info = manager.connectionInfo
+        return info.bssid
+    }
+
+    private fun showToast(message : CharSequence)
+    {
+        val myToast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
+        myToast.show()
     }
 }

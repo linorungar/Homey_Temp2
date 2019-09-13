@@ -28,18 +28,25 @@
             android:layout_marginEnd="304dp" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginRight="304dp" android:layout_marginStart="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp" tools:text="ASYNC"/>
+
     <Button
-            android:text="UI"
+            android:id="@+id/helloButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/uiButton"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
-            android:onClick="onUiButtonClick"
-            app:layout_constraintVertical_bias="0.935" android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/macButton" android:layout_marginRight="8dp"
-            app:layout_constraintStart_toEndOf="@+id/asyncOperationButton" android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp" tools:text="UI"/>
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:onClick="onHelloButtonClick"
+            android:text="HELLO"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/macButton"
+            app:layout_constraintStart_toEndOf="@+id/asyncOperationButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.935"
+            tools:text="HELLO" />
     <Button
             android:text="SHOW MAC"
             android:layout_width="wrap_content"
