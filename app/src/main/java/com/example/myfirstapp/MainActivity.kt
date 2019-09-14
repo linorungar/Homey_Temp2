@@ -1,27 +1,27 @@
 package com.example.myfirstapp
 
 import android.content.Context
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
+
 import android.widget.Toast
-import kotlinx.coroutines.*
 import android.net.wifi.WifiManager
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.kotlinpermissions.KotlinPermissions
-import java.net.NetworkInterface
-import java.util.jar.Manifest
-import kotlin.experimental.and
-import kotlin.reflect.typeOf
+import io.github.rybalkinsd.kohttp.ext.asString
+import io.github.rybalkinsd.kohttp.ext.httpGet
+import kotlinx.android.synthetic.main.activity_main.*
+
+// Enables Http requests
+import okhttp3.Response
+
+// Enables super convenient usage of async
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity()
+{
     val DEFAULT_MAC_WHEN_LACKING_PERMISSIONS = "02:00:00:00:00:00"
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -29,23 +29,59 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Setup button onClicks operations - important to do here and not via the xml.
+        // Mainly because async operations inside such onClick methods will crash the app,
+        // while this way they won't.
+        asyncOperationButton.setOnClickListener{
+            onAsyncButtonClick()
+        }
+
+        helloButton.setOnClickListener{
+            onHelloButtonClick()
+        }
+
+        macButton.setOnClickListener{
+            onMacButtonClick()
+        }
+
         // Location permissions are requested if needed to fetch the MAC (why? unclear)
         // Once granted they won't be requested again
         // (unless manually removed through the device's settings)
         askForLocationPermissionIfNeeded()
     }
 
-    fun onAsyncButtonClick(view: View)
-    {
+    fun onAsyncButtonClick(){
+        doAsync {
+            var result = fetchStringFromWeb()
+
+            uiThread {
+                showToast(result.toString())
+            }
+        }
     }
 
+    private fun fetchStringFromWeb(): String?
+    {
+        var data: String? = null
 
-    fun onHelloButtonClick(view :View)
+        try {
+            val response : Response = "https://mark-api.azurewebsites.net/api/Test?ZUMO-API-VERSION=2.0.0&userId=53c08eb06894d20da22c7375b0dcfb6f&latitude=32.18346716&longitude=34.87212952".httpGet()
+            data = response.asString()
+
+        }
+        catch(e: Exception){
+            val stam = 6
+        }
+
+        return data
+    }
+
+    fun onHelloButtonClick()
     {
         showToast("Hello Toast")
     }
 
-    fun onMacButtonClick(view: View)
+    fun onMacButtonClick()
     {
         val macAddress = getConnectedWifiMac()
 
@@ -63,17 +99,6 @@ class MainActivity : AppCompatActivity() {
         {
             showToast(macAddress)
         }
-    }
-
-    private suspend fun asyncFunc() = GlobalScope.launch(Dispatchers.Main)
-    {
-        var stam: String = ""
-        val statusMap = withContext(Dispatchers.Default) { BackendClient.fetchGroupStatuses(5, 5) }
-        for (key in statusMap.keys) {
-            stam = key
-        }
-
-        // global_string = stam
     }
 
     private fun askForLocationPermissionIfNeeded()

@@ -5,6 +5,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+
+    // IMPORTANT: enables kohttp library ("implementation("io.github.rybalkinsd:kohttp:0.11.0") " below)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    // IMPORTANT: enables kohttp library ("implementation("io.github.rybalkinsd:kohttp:0.11.0") " below)
+
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -29,10 +37,19 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    // Enables coroutines (ASYNC)
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1'
 
     // External library that allows us to use KotlinPermissions (which allows to ask the user for permissions)
     implementation 'ru.superjob:kotlin-permissions:1.0.3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-beta01'
+
+    // HTTP requests
+    implementation("io.github.rybalkinsd:kohttp:0.11.0")
+
+    // Async API!!!
+    implementation "org.jetbrains.anko:anko:0.10.8"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
